@@ -24,6 +24,7 @@ namespace Calendar
         private Label lblSelectedDate;
         private System.Windows.Forms.Timer reminderTimer;
         private NotifyIcon notifyIcon;
+        private Button btnComplain;
 
         private Dictionary<DateTime, List<CalendarEvent>> eventsStorage;
 
@@ -152,6 +153,17 @@ namespace Calendar
             btnShowAllEvents.ForeColor = Color.White;
             btnShowAllEvents.FlatStyle = FlatStyle.Flat;
             btnShowAllEvents.Click += OnShowAllEventsClick;
+
+            btnComplain = new Button();
+            btnComplain.Text = "Пожаловаться";
+            btnComplain.Location = new Point(8, 275);
+            btnComplain.Size = new Size(300, 30);
+            btnComplain.BackColor = Color.FromArgb(75, 75, 80);
+            btnComplain.ForeColor = Color.White;
+            btnComplain.FlatStyle = FlatStyle.Flat;
+            btnComplain.Click += OnComplainClick;
+
+            eventPanel.Controls.Add(btnComplain);
 
             eventPanel.Controls.Add(lblEventsTitle);
             eventPanel.Controls.Add(eventList);
@@ -392,6 +404,101 @@ namespace Calendar
             allEventsForm.Controls.Add(allEventsList);
             allEventsForm.Controls.Add(btnClose);
             allEventsForm.ShowDialog();
+        }
+
+        private void OnComplainClick(object? sender, EventArgs e)
+        {
+            Form complainForm = new Form();
+            complainForm.Text = "На что жалуетесь?";
+            complainForm.Size = new Size(400, 450);
+            complainForm.StartPosition = FormStartPosition.CenterParent;
+            complainForm.BackColor = Color.FromArgb(45, 45, 48);
+            complainForm.ForeColor = Color.White;
+            complainForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+            complainForm.MaximizeBox = false;
+            complainForm.MinimizeBox = false;
+
+            ListBox complaintList = new ListBox();
+            complaintList.Location = new Point(10, 10);
+            complaintList.Size = new Size(365, 330);
+            complaintList.Font = new Font("Segoe UI", 9);
+            complaintList.BackColor = Color.FromArgb(55, 55, 58);
+            complaintList.ForeColor = Color.White;
+            complaintList.BorderStyle = BorderStyle.FixedSingle;
+
+            string[] complaints = new string[]
+            {
+                "Календарь показывает неправильные числа!",
+                "События пропадают!",
+                "Всё работает, но мне скучно.",
+                "Мне не нравятся цвета кнопок!",
+                "Я не понимаю, как приложение работает!",
+                "Слишком много кнопок!",
+                "Слишком мало кнопок!",
+                "Мне не нравится шрифт!",
+                "Я нашёл баг!",
+                "Всё работает, но я хотел(а) проверить на кнопку."
+            };
+
+            foreach (string complaint in complaints)
+            {
+                complaintList.Items.Add(complaint);
+            }
+
+            Button btnSend = new Button();
+            btnSend.Text = "Отправить жалобу";
+            btnSend.Location = new Point(10, 350);
+            btnSend.Size = new Size(365, 35);
+            btnSend.BackColor = Color.FromArgb(180, 80, 80);
+            btnSend.ForeColor = Color.White;
+            btnSend.FlatStyle = FlatStyle.Flat;
+            btnSend.Click += (s, ev) =>
+            {
+                if (complaintList.SelectedItem != null)
+                {
+                    string selectedComplaint = complaintList.SelectedItem.ToString();
+                    string response = GetComplaintResponse(selectedComplaint);
+                    MessageBox.Show(response, "Ответ на жалобу", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    complainForm.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Выберите жалобу из списка", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            };
+
+            complainForm.Controls.Add(complaintList);
+            complainForm.Controls.Add(btnSend);
+            complainForm.ShowDialog();
+        }
+
+        private string GetComplaintResponse(string complaint)
+        {
+            switch (complaint)
+            {
+                case "Календарь показывает неправильные числа!":
+                    return "Календарь не ошибается.";
+                case "События пропадают!":
+                    return "События не пропадают. Протрезвейте.";
+                case "Всё работает, но мне скучно.":
+                    return "Вы жалуетесь на то, что всё работает? Это новый уровень.";
+                case "Мне не нравятся цвета кнопок!":
+                    return "Цвета утверждены советом. В совете работают дальтоники.";
+                case "Я не понимаю, как приложение работает!":
+                    return "Никто не понимает. Даже разработчик. ОСОБЕННО разработчик...";
+                case "Слишком много кнопок!":
+                    return "Кнопок ровно столько нужно. Изучите интерфейс нормально.";
+                case "Слишком мало кнопок!":
+                    return "Вы первый, кто жалуется на малое количество кнопок.";
+                case "Мне не нравится шрифт!":
+                    return "Шрифт выбран рыбкой разработчика, а Жемчуг - хороший мальчик!";
+                case "Я нашёл баг!":
+                    return "Это такая неназванная функция. Гордитесь собой!";
+                case "Всё работает, но я хотел(а) проверить на кнопку.":
+                    return "Похвально, похвально. Исследуйте дальше.";
+                default:
+                    return "Жалоба принята. Ответ придёт через 'Никогда'.";
+            }
         }
 
         private void CheckReminders(object? sender, EventArgs e)
